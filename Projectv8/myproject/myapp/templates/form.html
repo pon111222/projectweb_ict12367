@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+<title>สั่งออเดอร์ลูกค้า</title>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="bg-white p-4 rounded-4 shadow">
+    <h2 class="text-center fw-bold text-success mb-4">🧋 สั่งออเดอร์ลูกค้า</h2>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <!-- ความหวาน & ไข่มุก -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label for="sweetness" class="form-label">ความหวาน</label>
+          <select class="form-select" name="sweetness">
+            <option value="0">ไม่หวาน</option>
+            <option value="25">หวาน 25%</option>
+            <option value="50">หวาน 50%</option>
+            <option value="75">หวาน 75%</option>
+            <option value="100" selected>หวานปกติ</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="pearl" class="form-label">ไข่มุก</label>
+          <select class="form-select" name="pearl">
+            <option value="none">ไม่ใส่ไข่มุก</option>
+            <option value="regular" selected>ไข่มุกปกติ</option>
+            <option value="boba">บุก / ไข่มุกใหญ่</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- พนักงาน -->
+      <div class="mb-4">
+        <label for="employee_id" class="form-label">พนักงาน</label>
+        <select class="form-select" name="employee_id">
+          {% for employee in employees %}
+            <option value="{{ employee.id }}">👤 {{ employee.user.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- เมนูแบบตารางรูปภาพ -->
+      <div class="mb-4">
+        <label class="form-label">เลือกเมนูที่ต้องการ</label>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+          {% for menu in menus %}
+          <div class="col">
+            <label class="d-block text-center border rounded p-2 h-100" style="cursor:pointer;">
+              <img src="{{ menu.image.url }}" class="img-fluid rounded" style="height: 180px; object-fit: cover;">
+              <h5 class="mt-2">{{ menu.name }}</h5>
+              <p class="text-muted">{{ menu.price }} บาท</p>
+              <input type="radio" name="menu_id" value="{{ menu.id }}" class="form-check-input mt-2">
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ปุ่ม -->
+      <div class="d-flex justify-content-end mt-4">
+        <a href="{% url 'index' %}" class="btn btn-outline-secondary me-2">❌ ยกเลิก</a>
+        <button type="submit" class="btn btn-success">✅ ยืนยันออเดอร์</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

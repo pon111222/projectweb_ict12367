@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>ตะกร้าสินค้า</title>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="text-center text-primary fw-bold mb-4">
+    <i class="fas fa-shopping-cart"></i> ตะกร้าสินค้า
+  </h2>
+
+  {% if cart_items %}
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-dark">
+        <tr>
+          <th>เมนู</th>
+          <th>ความหวาน</th>
+          <th>ไข่มุก</th>
+          <th>จำนวน</th>
+          <th>ราคา</th>
+          <th>ลบ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+        <tr>
+          <td>{{ item.menu.name }}</td>
+          <td>{{ item.get_sweetness_display }}</td>
+          <td>{{ item.get_pearl_display }}</td>
+          <td>
+            <div class="d-flex justify-content-center align-items-center gap-2">
+              <form method="post" action="{% url 'update_cart' item.menu.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="decrease">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">➖</button>
+              </form>
+
+              <span>{{ item.quantity }}</span>
+
+              <form method="post" action="{% url 'update_cart' item.menu.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="increase">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">➕</button>
+              </form>
+            </div>
+          </td>
+          <td>{{ item.total_price|floatformat:2 }} บาท</td>
+          <td>
+            <form method="post" action="{% url 'remove_from_cart' item.menu.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger">❌</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-end mt-3">
+    <strong>รวมทั้งหมด: {{ total_price|floatformat:2 }} บาท</strong>
+  </div>
+
+  <form method="post" action="{% url 'confirm_order' %}" class="text-end mt-4">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-lg">✅ ยืนยันออเดอร์</button>
+  </form>
+
+  {% else %}
+    <div class="alert alert-warning text-center">
+      ยังไม่มีรายการในตะกร้า
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

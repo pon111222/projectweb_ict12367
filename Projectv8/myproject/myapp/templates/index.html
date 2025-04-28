@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %} 
+
+{% block title %}
+<title>mikutea - ระบบจัดการออเดอร์</title>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="bg-white shadow rounded-4 p-4 mb-4">
+    <h2 class="text-center mb-4 text-primary fw-bold">🧋 mikutea — รายการคำสั่งซื้อ</h2>
+
+    {% if orders %}
+      <div class="table-responsive">
+        <form method="get" class="mb-4 d-flex" role="search">
+          <input name="search" type="text" class="form-control me-2" placeholder="ค้นหาเมนู..." value="{{ search }}">
+          <button type="submit" class="btn btn-primary">ค้นหา</button>
+          <audio id="orderSound" src="{% static 'sounds/ding.mp3' %}" preload="auto"></audio>
+
+<script>
+setInterval(function() {
+  fetch("{% url 'index' %}")
+    .then(response => response.json())
+    .then(data => {
+      if (data.new_order) {
+        document.getElementById('orderSound').play(); // ✅ เล่นเสียง
+        alert('📣 มีออเดอร์ใหม่เข้ามาแล้ว!'); // หรือจะไม่ alert ก็ได้
+        location.reload();
+      }
+    });
+}, 5000); // เช็คทุก 5 วิ
+</script>
+        </form>
+
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>เลขออร์เดอร์</th>
+              <th>เมนู</th>
+              <th>ความหวาน</th>
+              <th>ไข่มุก</th>
+              <th>เวลา</th>
+              <th>พนักงาน</th>
+              <th>สถานะ</th>
+              <th>จัดการ</th>
+              <th>ใบเสร็จ</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            {% for order in orders %}
+            <tr>
+              <td class="fw-bold text-primary">#{{ order.id }}</td>
+              <td class="text-start">
+                {% for item in order.items.all %}
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    {% if item.menu.image %}
+                      <img src="{{ item.menu.image.url }}" width="150" height="130" style="object-fit: cover; border-radius: 8px;">
+                    {% endif %}
+                    <span>{{ item.menu.name }} x{{ item.quantity }}</span>
+                  </div>
+                {% endfor %}
+              </td>
+              <td>{{ order.get_sweetness_display }}</td>
+              <td>{{ order.get_pearl_display }}</td>
+              <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+              <td>{{ order.employee.user.username }}</td>
+              <td>
+                {% for item in order.items.all %}
+                  {% if item.is_delivered %}
+                    <span class="badge bg-success">จัดส่งแล้ว</span><br>
+                  {% else %}
+                    <form method="POST" action="{% url 'mark_item_delivered' item.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-success">✓ ส่งแล้ว</button>
+                    </form>
+                  {% endif %}
+                {% endfor %}
+              </td>
+              <td>
+                <a href="{% url 'order_edit' order.id %}" class="btn btn-sm btn-outline-warning mb-1">แก้ไข</a><br>
+                <a href="{% url 'order_delete' order.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('แน่ใจว่าต้องการลบออเดอร์นี้?');">ลบ</a>
+              </td>
+              <td>
+                <a href="{% url 'receipt_view' order.id %}" class="btn btn-sm btn-outline-primary">🧾 ใบเสร็จ</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 🔈 Sound effect ออเดอร์เข้า -->
+      <audio id="orderSound" src="{% static 'sounds/ding.mp3' %}" preload="auto"></audio>
+
+      <script>
+      setInterval(function() {
+        fetch("{% url 'check_new_orders' %}")
+          .then(response => response.json())
+          .then(data => {
+            if (data.new_order) {
+              document.getElementById('orderSound').play();
+              alert('📣 มีออเดอร์ใหม่เข้ามาแล้ว!');
+              location.reload();
+            }
+          });
+      }, 5000); // ทุก 5 วิ
+      </script>
+
+    <!-- ออเดอร์จะมาแสดงตรงนี้ -->
+  </div>
+</div>
+
+
+    {% else %}
+      <div class="alert alert-warning text-center">
+        ยังไม่มีออเดอร์ในระบบ
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
