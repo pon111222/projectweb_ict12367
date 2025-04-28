@@ -150,7 +150,7 @@ mikutea/
 
 ```bash
 git clone https://github.com/yourusername/mikutea.git
-cd mikutea
+cd myproject
 python -m venv venv
 source venv/bin/activate (Linux/Mac) หรือ venv\Scripts\activate (Windows)
 pip install -r requirements.txt
